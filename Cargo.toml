@@ -1,0 +1,22 @@
+[package]
+edition = "2021"
+name = "tauri-plugin-graphql-ipc"
+version = "0.0.0"
+authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
+license = "Apache-2.0 WITH LLVM-exception"
+homepage = "https://github.com/silvanshade/tauri-plugin-graphql-ipc"
+repository = "https://github.com/silvanshade/tauri-plugin-graphql-ipc"
+keywords = ["async-graphql", "graphql", "juniper", "tauri", "tauri-plugin"]
+description = """
+A Tauri plugin for type-safe IPC via GraphQL
+"""
+
+[features]
+default = ["async-graphql"]
+
+[dependencies]
+async-graphql = { version = "4.0", default-features = false, optional = true }
+juniper = { version = "0.15", default-features = false, optional = true }
+serde = { version = "1.0", default-features = false }
+serde_json = { version = "1.0", default-features = false }
+tauri = { version = "1.0", default-features = false }
