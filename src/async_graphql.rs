@@ -14,7 +14,8 @@ where
         let schema = schema.clone();
         match invoke.message.command() {
             "graphql" => invoke.resolver.respond_async(async move {
-                let request = serde_json::from_value::<async_graphql::Request>(invoke.message.payload().clone())
+                let payload = invoke.message.payload().clone();
+                let request = serde_json::from_value::<async_graphql::Request>(payload)
                     .map_err(tauri::InvokeError::from_serde_json)?
                     .data(window);
                 let response = schema.execute(request).await;
