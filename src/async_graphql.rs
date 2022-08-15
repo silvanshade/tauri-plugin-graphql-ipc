@@ -58,7 +58,7 @@ where
     Mutation: async_graphql::ObjectType + 'static,
     Subscription: async_graphql::SubscriptionType + 'static,
 {
-    tauri::plugin::Builder::new("async-graphql")
+    tauri::plugin::Builder::new("graphql-ipc")
         .invoke_handler(handler(schema))
         .build()
 }

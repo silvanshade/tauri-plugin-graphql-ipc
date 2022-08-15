@@ -13,7 +13,7 @@ interface InvokeArgs {
 type InvokeResponse = [body: string, isOk: boolean];
 
 const intoGraphQLInvokeCommand = (operation: urql.Operation): string => {
-  return `plugin:async-graphql|${operation.context.url}`;
+  return `plugin:graphql-ipc|${operation.context.url}`;
 };
 
 const intoGraphQLInvokeArguments = (operation: urql.Operation): InvokeArgs => {
@@ -23,7 +23,7 @@ const intoGraphQLInvokeArguments = (operation: urql.Operation): InvokeArgs => {
   };
 };
 
-const subscriptionInvokeCommand: string = "plugin:async-graphql|subscription";
+const subscriptionInvokeCommand: string = "plugin:graphql-ipc|subscription";
 
 const intoSubscriptionInvokeArguments = (operation: SubscriptionOperation, id: number): Record<string, unknown> => {
   return { ...operation, id };
