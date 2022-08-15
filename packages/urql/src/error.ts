@@ -7,7 +7,7 @@ export class TauriInvokeIPCError extends Error {
   }
 }
 
-export class TauriInvokeAsyncGraphQLError extends AggregateError {
+export class TauriInvokeGraphQLError extends AggregateError {
   public override readonly name: string = "TauriInvokeAsyncGraphQLError";
   constructor(errors: Iterable<unknown>, message?: string, options?: ErrorOptions) {
     super(errors, message, options);
@@ -20,10 +20,10 @@ export const handleTauriInvokeError = (error: unknown & { toString(): string }) 
   throw new TauriInvokeIPCError(message, { cause });
 };
 
-export const handleAsyncGraphQLError = (result: urql.ExecutionResult, isOk: boolean): void => {
+export const handleGraphQLError = (result: urql.ExecutionResult, isOk: boolean): void => {
   if (!isOk) {
     const errors = result.errors || [];
-    const message = `tauri command invocation failed due to "async-graphql" error`;
-    throw new TauriInvokeAsyncGraphQLError(errors, message);
+    const message = `tauri command invocation failed due to GraphQL error`;
+    throw new TauriInvokeGraphQLError(errors, message);
   }
 };

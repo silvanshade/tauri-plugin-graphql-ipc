@@ -36,7 +36,7 @@ const intoSubscriptionEvent = (id: number): string => {
 const intoExecutionResult = (response: InvokeResponse): urql.ExecutionResult => {
   const [body, isOk] = response;
   const result = JSON.parse(body) as urql.ExecutionResult;
-  error.handleAsyncGraphQLError(result, isOk);
+  error.handleGraphQLError(result, isOk);
   return result;
 };
 
@@ -157,4 +157,4 @@ export const forwardSubscription = (operation: SubscriptionOperation) => ({
   subscribe: subscribe(operation),
 });
 
-export { TauriInvokeAsyncGraphQLError, TauriInvokeIPCError } from "./error";
+export { TauriInvokeGraphQLError, TauriInvokeIPCError } from "./error";
