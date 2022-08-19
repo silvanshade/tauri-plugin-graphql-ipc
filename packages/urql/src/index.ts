@@ -23,7 +23,7 @@ const intoGraphQLInvokeArguments = (operation: urql.Operation): InvokeArgs => {
   };
 };
 
-const subscriptionInvokeCommand: string = "plugin:graphql-ipc|subscription";
+const subscriptionInvokeCommand = "plugin:graphql-ipc|subscription";
 
 const intoSubscriptionInvokeArguments = (operation: SubscriptionOperation, id: number): Record<string, unknown> => {
   return { ...operation, id };
@@ -64,7 +64,7 @@ const makeInvokeSource = (
         observer.next(errorResult);
       })
       // complete the source
-      .finally(observer.complete);
+      .finally(() => observer.complete());
 
     return () => {
       // noop
@@ -132,7 +132,7 @@ function subscribe(operation: SubscriptionOperation) {
           sink.complete();
         } else {
           // otherwise, push the subscription update into the sink
-          sink.next(JSON.parse(event.payload));
+          sink.next(JSON.parse(event.payload) as urql.ExecutionResult);
         }
       })
       // invoke the subscription query and start the stream
