@@ -4,8 +4,6 @@ import * as urql from "@urql/core";
 import type { ObserverLike, SubscriptionOperation } from "@urql/core/dist/types/exchanges/subscription";
 import * as wonka from "wonka";
 
-import * as error from "./error";
-
 interface InvokeArgs {
   [key: string]: unknown;
 }
@@ -33,38 +31,18 @@ const intoSubscriptionEvent = (id: number): string => {
   return `graphql://${id}`;
 };
 
-const intoExecutionResult = (response: InvokeResponse): urql.ExecutionResult => {
-  const [body, isOk] = response;
-  const result = JSON.parse(body) as urql.ExecutionResult;
-  error.handleGraphQLError(result, isOk);
-  return result;
-};
-
 const makeInvokeSource = (
   operation: urql.Operation,
   cmd: string,
   args?: InvokeArgs,
 ): wonka.Source<urql.OperationResult> => {
   return wonka.make<urql.OperationResult>((observer) => {
-    tauri
-      // invoke tauri command
-      .invoke<InvokeResponse>(cmd, args)
-      // catch errors from calling tauri IPC
-      .catch(error.handleTauriInvokeError)
-      // transform invoke result into urql execution result
-      .then(intoExecutionResult)
-      // transform execution result into urql operation result
-      .then((executionResult) => {
-        const operationResult = urql.makeResult(operation, executionResult);
-        observer.next(operationResult);
-      })
-      // catch remaining errors (including those rethrown from above)
-      .catch((error: Error) => {
-        const errorResult = urql.makeErrorResult(operation, error, null);
-        observer.next(errorResult);
-      })
-      // complete the source
-      .finally(() => observer.complete());
+    const run = async () => {
+      const [body] = await tauri.invoke<InvokeResponse>(cmd, args);
+      observer.next(urql.makeResult(operation, JSON.parse(body) as urql.ExecutionResult));
+      observer.complete();
+    };
+    void run();
 
     return () => {
       // noop
@@ -123,31 +101,34 @@ function subscribe(operation: SubscriptionOperation) {
   return (sink: ObserverLike<urql.ExecutionResult>) => {
     const id = Math.floor(Math.random() * 10000000);
     const event = intoSubscriptionEvent(id);
+    let stopListeningForSubscriptionUpdates = () => {
+      return;
+    };
 
-    tauri.event
-      // set the event listener for subscription updates
-      .listen<string | null>(event, (event) => {
-        if (event.payload === null) {
-          // when the payload is finally null, complete the sink
-          sink.complete();
-        } else {
-          // otherwise, push the subscription update into the sink
-          sink.next(JSON.parse(event.payload) as urql.ExecutionResult);
-        }
-      })
-      // invoke the subscription query and start the stream
-      .then(() => {
-        const cmd = subscriptionInvokeCommand;
-        const args = intoSubscriptionInvokeArguments(operation, id);
-        return tauri.invoke(cmd, args);
-      })
-      // catch errors from calling tauri IPC
-      .catch(error.handleTauriInvokeError);
+    const run = async () => {
+      stopListeningForSubscriptionUpdates = await tauri.event
+        // set the event listener for subscription updates
+        .listen<string | null>(event, (event) => {
+          if (event.payload === null) {
+            // when the payload is finally null, complete the sink
+            sink.complete();
+            stopListeningForSubscriptionUpdates();
+          } else {
+            // otherwise, push the subscription update into the sink
+            sink.next(JSON.parse(event.payload) as urql.ExecutionResult);
+          }
+        });
+      const cmd = subscriptionInvokeCommand;
+      const args = intoSubscriptionInvokeArguments(operation, id);
+      await tauri.invoke(cmd, args);
+    };
+    void run();
 
     return {
       unsubscribe: () => {
         console.debug("unsubscribe called");
         sink.complete();
+        stopListeningForSubscriptionUpdates();
       },
     };
   };
@@ -156,5 +137,3 @@ function subscribe(operation: SubscriptionOperation) {
 export const forwardSubscription = (operation: SubscriptionOperation) => ({
   subscribe: subscribe(operation),
 });
-
-export { TauriInvokeGraphQLError, TauriInvokeIPCError } from "./error";
