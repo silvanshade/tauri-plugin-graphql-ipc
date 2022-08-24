@@ -1,0 +1,10 @@
+{
+  "eslint.options": {
+    "overrideConfig": {
+      "parserOptions": {
+        "parser": "@typescript-eslint/parser",
+        "project": "packages/urql/tsconfig.json"
+      }
+    }
+  }
+}
