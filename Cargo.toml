@@ -15,7 +15,7 @@ A Tauri plugin for type-safe IPC via GraphQL
 default = ["async-graphql"]
 
 [dependencies]
-async-graphql = { version = "4.0", default-features = false, optional = true }
+async-graphql = { version = "5.0", default-features = false, optional = true }
 juniper = { version = "0.15", default-features = false, optional = true }
 juniper_subscriptions = { version = "0.16", default-features = false, optional = true }
 serde = { version = "1.0", default-features = false }
