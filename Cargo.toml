@@ -12,12 +12,15 @@ A Tauri plugin for type-safe IPC via GraphQL
 """
 
 [features]
-default = ["async-graphql"]
+graphql-ide = ["async-graphql-warp", "http", "open", "url", "warp"]
 
 [dependencies]
-async-graphql = { version = "5.0", default-features = false, optional = true }
-juniper = { version = "0.15", default-features = false, optional = true }
-juniper_subscriptions = { version = "0.16", default-features = false, optional = true }
+async-graphql = { version = "5.0", default-features = false }
+async-graphql-warp = { version = "5.0", default-features = false, optional = true }
+http = { version = "0.2", default-features = false, optional = true }
+open = { version = "3.2", default-features = false, optional = true }
 serde = { version = "1.0", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 tauri = { version = "1.0", default-features = false }
+url = { version = "2.3", default-features = false, optional = true }
+warp = { version = "0.3", default-features = false, optional = true }

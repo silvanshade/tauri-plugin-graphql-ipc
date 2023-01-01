@@ -6,5 +6,6 @@
         "project": "packages/urql/tsconfig.json"
       }
     }
-  }
+  },
+  "editor.formatOnSave": true
 }

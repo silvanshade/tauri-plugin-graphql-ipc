@@ -1,9 +1,16 @@
-#[cfg(feature = "async-graphql")]
-mod async_graphql;
-#[cfg(feature = "async-graphql")]
-pub use crate::async_graphql::*;
+#[cfg(any(feature = "graphql-ide"))]
+pub struct GraphQlIdeConfig {
+    addr: std::net::SocketAddr,
+    open: bool,
+}
 
-#[cfg(feature = "juniper")]
-mod juniper;
-#[cfg(feature = "juniper")]
-pub use crate::juniper::*;
+#[cfg(any(feature = "graphql-ide"))]
+impl GraphQlIdeConfig {
+    pub fn new(addr: impl Into<std::net::SocketAddr>, open: bool) -> Self {
+        let addr = addr.into();
+        Self { addr, open }
+    }
+}
+
+mod async_graphql;
+pub use crate::async_graphql::*;
